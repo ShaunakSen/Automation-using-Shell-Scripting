@@ -427,6 +427,24 @@ PS C:\Users\v-shause> start .\file.txt
 
 Second method is more readable
 
+HELP:
+__________________________________
+
+To create comment based help in PowerShell, you'll need the following basic layout:
+
+<#   
+.SYNOPSIS   
+   A brief description of what your code does.
+.DESCRIPTION 
+   A full description of what your code does.
+.NOTES   
+    Name: Script/function/module name
+    Author: Your Name
+    DateCreated: The current date
+#>
+
+This block should go above all of the code you are going to use, and is the only thing in PowerShell allowed above the [cmdletbinding()] statement.
+
 	
 	
 	
