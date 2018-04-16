@@ -427,6 +427,105 @@ PS C:\Users\v-shause> start .\file.txt
 
 Second method is more readable
 
+Modules:
+_____________________
+
+Modules in PowerShell are a way to aggregate functions into one file and then re-use them later. There are various different module types, but we'll be focusing on Script Modules. If you find yourself reusing functions here and there, it may be time to create a module in PowerShell. 
+
+Script modules require these basic items:
+
+-A file with code in it (for script modules this will be a .psm1 file)
+-Any required modules / scripts that the module itself requires
+-A folder that has the module name stored where PowerShell can import the module
+-This isn't exactly required, but is is immensely helpful: a manifest file that contains metadata (version/author/file info).
+
+In PowerShell, you can see what modules are available to you by using the following command:
+Get-Module -ListAvailable
+
+To  see what modules you are currently using in your session, type:
+Get-Module
+
+If you 'd like to see what commands a module has available, use:
+
+PS C:\Users\Shaunak> Get-Command -Module DnsClient
+
+CommandType     Name                                               Version    Source                                                 
+-----------     ----                                               -------    ------                                                 
+Function        Add-DnsClientNrptRule                              1.0.0.0    DnsClient                                              
+Function        Clear-DnsClientCache                               1.0.0.0    DnsClient                                              
+Function        Get-DnsClient                                      1.0.0.0    DnsClient                                              
+Function        Get-DnsClientCache                                 1.0.0.0    DnsClient                                              
+Function        Get-DnsClientGlobalSetting                         1.0.0.0    DnsClient                                              
+Function        Get-DnsClientNrptGlobal                            1.0.0.0    DnsClient                                              
+Function        Get-DnsClientNrptPolicy                            1.0.0.0    DnsClient                                              
+Function        Get-DnsClientNrptRule                              1.0.0.0    DnsClient                                              
+Function        Get-DnsClientServerAddress                         1.0.0.0    DnsClient                                              
+Function        Register-DnsClient                                 1.0.0.0    DnsClient    
+
+Let's try to use one of the commands from the DnsClient module.
+
+Clear-DnsClientCache
+
+Get-Module
+
+It looks like the module was automatically imported into PowerShell when we used one of its commands. That is because starting in PowerShell version 3.0, modules that are available via Get-Module -ListAvailable will be automatically imported if one of their commands are used.
+
+CREATING MODULES
+
+
+PowerShell modules available via Get-Module -ListAvailable are stored in folders listed in the environment variable PSModulePath. Use the following commands to see where the folders are:
+
+The folders:
+
+C:\Program Files\WindowsPowerShell\Modules
+C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+Contain modules that will be available to anybody using PowerShell on the local machine.
+
+Let's keep the scope to not require administrative rights (which those folders require to change at all), and create the Documents\WindowsPowerShell\Modules folder.    
+
+The full path for my instance of PowerShell can be found by using:
+
+(Get-ChildItem Env:\PSModulePath).Value.Split(';')[0]
+
+When you find the one that matches, use the following command to create the folder:
+
+$location = (Get-ChildItem Env:\PSModulePath).Value.Split(';')[0]
+
+New-Item -Path $location -ItemType Directory
+
+Set-Location $location
+
+PS C:\Users\Shaunak\Documents\WindowsPowerShell\Modules> 
+
+In that folder create a script called Script2.psm1
+
+New-ModuleManifest -Path .\Script2.psd1 -NestedModules 'Script2.psm1'
+
+Use Get-ChildItem to list out the files
+
+PS C:\Users\Shaunak\Documents\WindowsPowerShell\Modules> Get-ChildItem
+
+
+    Directory: C:\Users\Shaunak\Documents\WindowsPowerShell\Modules
+
+
+Mode                LastWriteTime         Length Name                                                                                
+----                -------------         ------ ----                                                                                
+-a----        4/14/2018  10:08 AM           2629 Script2.ps1                                                                         
+-a----        4/14/2018   3:41 PM           7740 Script2.psd1                                                                        
+-a----        4/14/2018  10:09 AM           2629 Script2.psm1                                                                        
+IMPORT A MODULE
+Let's import the module we created!
+
+Make sure you see it via:
+
+Get-Module -ListAvailable
+
+When developing your own modules, Import-Module and Remove-Module will be your friends. When you import a module, it is imported into memory in its current state at that moment. That means if you make any changes after importing, you will have to remove and then re-import the module.
+
+Import-Module Part6
+
+
 HELP:
 __________________________________
 
@@ -444,6 +543,8 @@ To create comment based help in PowerShell, you'll need the following basic layo
 #>
 
 This block should go above all of the code you are going to use, and is the only thing in PowerShell allowed above the [cmdletbinding()] statement.
+
+Get-Help .\part7example.ps1
 
 	
 	
