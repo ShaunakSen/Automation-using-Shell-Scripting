@@ -546,8 +546,186 @@ This block should go above all of the code you are going to use, and is the only
 
 Get-Help .\part7example.ps1
 
-	
-	
+Accepting Pipeline Input:
+__________________________________
+
+The pipeline in PowerShell is what commands use when separated with the pipeline operator '|'. It allows commands to pass the output values to the next command in the sequence. You can pipe as many commands together as necessary to complete your task. 
+
+Pipeline structure:
+
+Command1 (output) -> | Command2 (output) -> | Command3
+
+Let's start with Get-Process.
+
+Get-Process
+This command will give you a list of all running processes, and some information for each process.
+
+What if we just cared about the first 10 processes, sorted by CPU usage?
+
+Let's try:
+
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+
+The above command takes Get-Process, then pipes it to Sort-Object (which we have sorting by CPU, descending), and then pipes that to Select-Object so we can specify that we want to see the First 10 results only. 
+
+We can use the same command, but specify -Last 10 to see the last 10 results.
+
+Get-Process | Sort-Object CPU -Descending | Select-Object -Last 10
+
+Pretty handy! What if we wanted to see this in a different way? You can take the above command, and then pipe it to Out-GridView.
+
+Get-Process | Sort-Object CPU -Descending | Select-Object -Last 10 | Out-GridView
+
+<<to be continued...>>
+
+__________________________________
+
+ALL ABOUT STRINGS!
+
+__________________________________
+
+JOBS
+__________________________________
+
+ERROR HANDLING
+__________________________________
+
+CREATING CUSTOM OBJECTS
+__________________________________
+
+IMPORTING, USING, AND EXPORTING DATA
+__________________________________
+
+UTILIZING THE WEB: PART 1 (INVOKE-WEBREQUEST)
+__________________________________
+
+PowerShell can do quite a bit with web sites, and web services. 
+
+Some of what we can do includes:
+
+-Checking if a website is up
+-Downloading files
+-Logging in to webpages
+-Parsing the content we receive
+-Utilizing REST methods
+
+Invoke-WebRequest is a command that allows us to retrieve content from web pages. The methods supported when using Invoke-WebRequest are:
+
+Trace
+Put
+Post
+Options
+Patch
+Merge
+Delete
+Default
+Head
+Get (Default)
+Let's take a look at some different ways to utilize Invoke-WebRequest
+
+DOWNLOADING A FILE:
+
+Let's download a file! In this particular example, we will download an addon for World of Warcraft.
+
+The page we'll be looking at is http://www.tukui.org/dl.php
+
+$downloadURL = 'http://www.anubandh.com/'
+$downloadRequest = Invoke-WebRequest -Uri $downloadURL
+
+Here I set the $downloadURL variable to store the main page we want to go to, and then use $downloadRequest to store the results of Invoke-WebRequest (using the $downloadURL as the URI).
+
+Let's take a look at what's in $downloadRequest.
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                    
+                    <head>
+                    <meta name="google-site-ve...
+RawContent        : HTTP/1.1 200 OK
+                    Pragma: no-cache
+                    Transfer-Encoding: chunked
+                    Cache-Control: no-store
+                    Content-Type: text/html;charset=ISO-8859-1
+                    Date: Mon, 16 Apr 2018 04:22:14 GMT
+                    Expires: Thu, 01 Jan 1970 00:00...
+Forms             : {search, searchAdv, login}
+Headers           : {[Pragma, no-cache], [Transfer-Encoding, chunked], [Cache-Control, no-store], [Content-Type, 
+                    text/html;charset=ISO-8859-1]...}
+Images            : {@{innerHTML=; innerText=; outerHTML=<IMG src="https://www.anubandh.com/images/colorfullstrip_top.gif" 
+                    width="99.8%" height=19>; outerText=; tagName=IMG; src=https://www.anubandh.com/images/colorfullstrip_top.gif; 
+                    width=99.8%; height=19}, @{innerHTML=; innerText=; outerHTML=<IMG 
+                    src="https://www.anubandh.com/images/HomePageBanner.gif" width=747 height=104>; outerText=; tagName=IMG; 
+                    src=https://www.anubandh.com/images/HomePageBanner.gif; width=747; height=104}, @{innerHTML=; innerText=; 
+                    outerHTML=<IMG src="https://www.anubandh.com/images/colorfullstrip_bottom.gif" width="100%" height=20>; 
+                    outerText=; tagName=IMG; src=https://www.anubandh.com/images/colorfullstrip_bottom.gif; width=100%; height=20}, 
+                    @{innerHTML=; innerText=; outerHTML=<IMG border=0 alt="Advance Search" 
+                    src="https://www.anubandh.com/images/btn_advancesearch.gif" width=107 height=20>; outerText=; tagName=IMG; 
+                    border=0; alt=Advance Search; src=https://www.anubandh.com/images/btn_advancesearch.gif; width=107; 
+                    height=20}...}
+InputFields       : {@{innerHTML=; innerText=; outerHTML=<INPUT height=20 alt=Search 
+                    src="https://www.anubandh.com/images/btn_search.gif" type=image width=57 valign="top">; outerText=; 
+                    tagName=INPUT; height=20; alt=Search; src=https://www.anubandh.com/images/btn_search.gif; type=image; width=57; 
+                    valign=top}, @{innerHTML=; innerText=; outerHTML=<INPUT class=textbox size=10 name=searchParamVal>; outerText=; 
+                    tagName=INPUT; class=textbox; size=10; name=searchParamVal}, @{innerHTML=; innerText=; outerHTML=<INPUT 
+                    height=20 alt=Search src="https://www.anubandh.com/images/btn_search.gif" type=image width=57 align=left 
+                    border=0>; outerText=; tagName=INPUT; height=20; alt=Search; src=https://www.anubandh.com/images/btn_search.gif; 
+                    type=image; width=57; align=left; border=0}, @{innerHTML=; innerText=; outerHTML=<INPUT class=textbox size=13 
+                    name=login_name>; outerText=; tagName=INPUT; class=textbox; size=13; name=login_name}...}
+Links             : {@{innerHTML=<IMG border=0 alt="Advance Search" src="https://www.anubandh.com/images/btn_advancesearch.gif" 
+                    width=107 height=20> ; innerText= ; outerHTML=<A 
+                    href="https://www.anubandh.com/marriage_bureau/index.jsp?search_type=advance&amp;page_no=0"><IMG border=0 
+                    alt="Advance Search" src="https://www.anubandh.com/images/btn_advancesearch.gif" width=107 height=20> </A>; 
+                    outerText= ; tagName=A; 
+                    href=https://www.anubandh.com/marriage_bureau/index.jsp?search_type=advance&amp;page_no=0}, @{innerHTML=<IMG 
+                    border=0 alt=Home src="https://www.anubandh.com/images/btn_home.gif" width=107 height=20> ; innerText= ; 
+                    outerHTML=<A href="../marriage_bureau/index.jsp"><IMG border=0 alt=Home 
+                    src="https://www.anubandh.com/images/btn_home.gif" width=107 height=20> </A>; outerText= ; tagName=A; 
+                    href=../marriage_bureau/index.jsp}, @{innerHTML=<SPAN class=login>Forgot Password?</SPAN>; innerText=Forgot 
+                    Password?; outerHTML=<A href="https://www.anubandh.com/marriage_bureau/ForgotPassword.jsp"><SPAN 
+                    class=login>Forgot Password?</SPAN></A>; outerText=Forgot Password?; tagName=A; 
+                    href=https://www.anubandh.com/marriage_bureau/ForgotPassword.jsp}, @{innerHTML=<SPAN 
+                    class=login>Register</SPAN>; innerText=Register; outerHTML=<A href="https://www.anubandh.com/index.html"><SPAN 
+                    class=login>Register</SPAN></A>; outerText=Register; tagName=A; href=https://www.anubandh.com/index.html}...}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 56075
+
+$downloadRequest.Content gives us the entire code of the website
+Similarly all other Properties like Forms Headers InputFields Links are also useful
+
+We'll go over some of the other properties later, and focus on Links for now. The Links property returns all the links found on the web site. $downloadRequest.Links
+
+innerHTML : Contact Us 
+innerText : Contact Us 
+outerHTML : <A href="https://www.anubandh.com//marriage_bureau/ContactInfo.jsp?screen=1">Contact Us </A>
+outerText : Contact Us 
+tagName   : A
+href      : https://www.anubandh.com//marriage_bureau/ContactInfo.jsp?screen=1
+
+innerHTML : Disclaimer
+innerText : Disclaimer
+outerHTML : <A href="https://www.anubandh.com//marriage_bureau/Disclaimer.jsp?screen=1">Disclaimer</A>
+outerText : Disclaimer
+tagName   : A
+href      : https://www.anubandh.com//marriage_bureau/Disclaimer.jsp?screen=1
+
+The list continues, but you get the idea. This is one of my favorite things about the Invoke-WebRequest command. The way it returns links is very easy to parse through.
+
+Lets search for Sujit Tangadpalliwar
+
+PS C:\Users\Shaunak> $downloadRequest.Links | Where-Object {$_ -like '*Sujit*' -and $_ -like '*Tangadp*'}
+
+
+innerHTML : Sujit Tangadpalliwar (ID: 20933) 
+innerText : Sujit Tangadpalliwar (ID: 20933) 
+outerHTML : <A href="https://www.anubandh.com/marriage_bureau/profile_table.jsp?user_id=20933">Sujit Tangadpalliwar (ID: 20933) </A>
+outerText : Sujit Tangadpalliwar (ID: 20933) 
+tagName   : A
+href      : https://www.anubandh.com/marriage_bureau/profile_table.jsp?user_id=20933
+
+
 	
 	
 	
