@@ -725,12 +725,123 @@ outerText : Sujit Tangadpalliwar (ID: 20933)
 tagName   : A
 href      : https://www.anubandh.com/marriage_bureau/profile_table.jsp?user_id=20933
 
+Downloading a file on separate link as the link mentioned is not working
 
 
+$downloadLink = 'http://hall2mess.esy.es/uploads/menu/menu.png'
 
+
+$downloadURL2 = 'http://hall2mess.esy.es/'
+
+$downloadRequest2 = Invoke-WebRequest -Uri $downloadURL2
+
+$downloadRequest2
+
+$downloadLink = 'http://hall2mess.esy.es/uploads/menu/menu.png'
+
+Next we'll use Invoke-WebRequest again to download the file. There are two ways we can get the file:
+
+- Using Invoke-WebRequest to store the results in a variable,  and then write all the bytes to a file using the Contents property (which is a byte array).
+- Using Invoke-WebRequest with the -OutFile parameter set as the full path of the download. With this option we'll want to use -PassThru so we can still get the results from Invoke-WebRequest (otherwise success = empty result/no object returned).
+
+Using the Contents property and writing the bytes out:
+
+$fileName
+
+$downloadRequest_for_download = Invoke-WebRequest -Uri $downloadLink
+
+$fileContents = $downloadRequest_for_download.Content
+
+The above code takes the link we stored, and gets the file name from it using LastIndexOf, and SubString.
+
+It then stores the download request results in $downloadRequest_for_download. 
+
+Finally, we get the contents (which is a byte array, if all went well), and store that in $fileContents.
+
+The last thing we'll need to do is write the bytes out. To do that we'll use [io.file]WriteAllBytes(path,contents) to write the byte array to a file.
+
+[io.file]::WriteAllBytes("C:\Users\Shaunak\Downloads\$fileName",$fileContents)
+
+
+Parsing Content:
+
+Using Invoke-WebRequest, the content of the request is returned to us in the object. There are many ways to go through the data. In this example I will demonstrate gathering the titles and their associated links from the PowerShell subreddit.
+
+Link: https://www.reddit.com/r/PowerShell/
+
+Here's the setup:
+
+$parseURL    = 'http://www.reddit.com/r/powershell'
+$webRequest  = Invoke-WebRequest -Uri $parseURL
+
+Now let's take a look at the $webRequest variable.
+
+-RawContent
+    This is the content returned as it was received, including header data. 
+-Forms
+    This property contains any discovered forms. We'll go over this portion in more detail when we log in to a website.
+-Headers
+    This property contains just the returned header information.
+-Images
+    This property contains any images that were able to be discovered.
+-InputFields
+    This property returns discovered input fields on the website.
+-Links
+    This returns the links found on the website, in an easy format to iterate through.
+-ParsedHTML
+    This property allows you to access the DOM of the web site. DOM is short for Document Object Model. Think of DOM as a structured representation of the data on the website.
 	
 	
-	
-	
+As always, if you want to see what other properties were returned, and any methods available, pipe $webRequest to Get-Member.
+
+PS C:\Users\Shaunak> $webRequest | Get-Member
+
+
+   TypeName: Microsoft.PowerShell.Commands.HtmlWebResponseObject
+
+Name              MemberType Definition                                                                 
+----              ---------- ----------                                                                 
+Dispose           Method     void Dispose(), void IDisposable.Dispose()                                 
+Equals            Method     bool Equals(System.Object obj)                                             
+GetHashCode       Method     int GetHashCode()                                                          
+GetType           Method     type GetType()                                                             
+ToString          Method     string ToString()                                                          
+AllElements       Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection AllElements {get;}
+BaseResponse      Property   System.Net.WebResponse BaseResponse {get;set;}                             
+Content           Property   string Content {get;}                                                      
+Forms             Property   Microsoft.PowerShell.Commands.FormObjectCollection Forms {get;}            
+Headers           Property   System.Collections.Generic.Dictionary[string,string] Headers {get;}        
+Images            Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Images {get;}     
+InputFields       Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection InputFields {get;}
+Links             Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Links {get;}      
+ParsedHtml        Property   mshtml.IHTMLDocument2 ParsedHtml {get;}                                    
+RawContent        Property   string RawContent {get;set;}                                               
+RawContentLength  Property   long RawContentLength {get;}                                               
+RawContentStream  Property   System.IO.MemoryStream RawContentStream {get;}                             
+Scripts           Property   Microsoft.PowerShell.Commands.WebCmdletElementCollection Scripts {get;}    
+StatusCode        Property   int StatusCode {get;}                                                      
+StatusDescription Property   string StatusDescription {get;}
+
+Now to get the title text from the current posts at http://www.reddit.com/r/powershell.
+
+The fastest way to narrow it down, is to launch a browser and take a look at the DOM explorer. In Edge I used [F12] to launch the developer tools, and then used the [Select Element] option in the [DOM Explorer] tab. I then selected one of the posts to see what it looked like. 
+
+It looks like the link is under a class named title, and the tag <p>. 
+
+Let's use the ParsedHTML property to access the DOM, and look for all instances of <p> where the class is title.
+
+$webRequest.ParsedHtml.getElementsByTagName('p') | Where-Object {$_.ClassName -eq 'title'}
+
+PS C:\Users\Shaunak> $webRequest.ParsedHtml.getElementsByTagName('p') | Where-Object {$_.ClassName -eq 'title'} | Select-Object -ExpandProperty OuterText
+Survey on PowerShell Core: Take 5 minutes and help out the PowerShell Team! (aka.ms)
+Set your desktop image with images from Reddit. (self.PowerShell)
+QuestionFormatting script output (self.PowerShell)
+SolvedPassing a variable to Invoke-Sqlcmd (self.PowerShell)
+Need help with formating/looking for a better way (self.PowerShell)
+Script SharingGet-Metadata (self.PowerShell)
+QuestionRunning a local script remotely with parameters? (self.PowerShell)
+QuestionShortest Script Challenge - Draw right-angled triangle? (self.PowerShell)
+Copy-Items (self.PowerShell)
+
 	
 	
